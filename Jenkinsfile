@@ -69,12 +69,12 @@ pipeline {
           echo 'Docker Image Push failure'
           sh "docker rmi ${dockerHubRegistry}:${currentBuild.number}"
           sh "docker rmi ${dockerHubRegistry}:latest"
-          slackSend (color: '#0AC9FF', message: "SUCCESS: Docker Image Push '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
         success {
           echo 'Docker Image Push success'
           sh "docker rmi ${dockerHubRegistry}:${currentBuild.number}"
           sh "docker rmi ${dockerHubRegistry}:latest"
+          slackSend (color: '#0AC9FF', message: "SUCCESS: Docker Image Push '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
       }
     }
