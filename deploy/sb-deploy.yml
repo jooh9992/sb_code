@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: spring
-          image: leejooh/sbimage:10
+          image: leejooh/sbimage:11
