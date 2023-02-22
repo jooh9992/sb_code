@@ -13,11 +13,11 @@ pipeline {
     gitWebaddress = 'https://github.com/jooh9992/sb_code.git'
     gitSshaddress = 'git@github.com:jooh9992/sb_code.git'
 
-  }
+   }
   stages {
     stage('Checkout Github') {
       steps {
-          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'https://github.com/jooh9992/sb_code.git']]])
+          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: gitWebaddress]]])
           }
       post {
         failure {
@@ -32,13 +32,14 @@ pipeline {
     stage('Maven Build') {
       steps {
           sh 'mvn clean install'
+          // maven integration , maven invoker 플러그인이 설치되어있어야함.
           }
       post {
         failure {
           echo 'Maven jar build failure'
         }
         success {
-          echo 'Maven jar build success'  
+          echo 'Repository clone success'  
         }
       }
     }
@@ -46,13 +47,15 @@ pipeline {
       steps {
           sh "docker build -t ${dockerHubRegistry}:${currentBuild.number} ."
           sh "docker build -t ${dockerHubRegistry}:latest ."
+          // dockerHubRegistry 위에서 선언한 변수, 내 저장소.
+          // currentBuild.number 젠킨스가 제공하는 변수. 빌드넘버를 받아옴.
           }
       post {
         failure {
-          echo 'Docker image build failure'
+          echo 'Docker Image Build failure'
         }
         success {
-          echo 'Docker image build success'  
+          echo 'Docker Image Build success'  
         }
       }
     }
@@ -61,13 +64,12 @@ pipeline {
           // 도커 허브의 크리덴셜
           withDockerRegistry(credentialsId: dockerHubRegistryCredential, url: '') {
           // withDockerRegistry : docker pipeline 플러그인 설치시 사용가능.
-          // dockerHubRegistryCredential : environment에서 선언한 docker_cre
+          // dockerHubRegistryCredential : environment에서 선언한 docker_cre  
             sh "docker push ${dockerHubRegistry}:${currentBuild.number}"
             sh "docker push ${dockerHubRegistry}:latest"
           }  
       }
       post {
-      // docker push가 성공하든 실패하든 로컬의 도커이미지는 삭제.
         failure {
           echo 'Docker Image Push failure'
           sh "docker rmi ${dockerHubRegistry}:${currentBuild.number}"
@@ -81,7 +83,7 @@ pipeline {
         }
       }
     }
-     stage('k8s manifest file update') {
+    stage('k8s manifest file update') {
       steps {
         git credentialsId: githubCredential,
             url: gitWebaddress,
@@ -111,5 +113,6 @@ pipeline {
       
   }
 }
+
 
 
