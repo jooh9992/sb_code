@@ -9,5 +9,5 @@ spec:
     - name: http
       protocol: TCP
       port: 80
-      targetPort: 8085
+      targetPort: 80
   type: LoadBalancer
