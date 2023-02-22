@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: spring
-          image: leejooh/ipnginx
+          image: leejooh/sbimage:10
