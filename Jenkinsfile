@@ -2,19 +2,20 @@ pipeline {
   agent any
   // any, none, label, node, docker, dockerfile, kubernetes
   tools {
-    gradle 'test-gradle'
+    maven 'my_maven'
   }
+
   environment {
     gitName = 'jooh9992'
     gitEmail = 'jooh9992@gmail.com'
-    githubCredential = 'leejooh/sbimage'
-    dockerHubRegistry = 'wltn2858/test-jenkins'
+    githubCredential = 'git_cre'
+    dockerHubRegistry = 'leejooh/sbimage'
     dockerHubRegistryCredential = 'docker-cre'
   }
   stages {
     stage('Checkout Github') {
       steps {
-          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'https://github.com/soojik/test-jenkins']]])
+          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'https://github.com/jooh9992/sb_code']]])
           }
       post {
         failure {
@@ -79,13 +80,13 @@ pipeline {
     stage('k8s manifest file update') {
       steps {
                   git credentialsId: githubCredential,
-                      url: 'https://github.com/jooh9992/sb_code.git',
-                      branch: 'main'
+                  url: 'https://github.com/jooh9992/sb_code.git',
+                  branch: 'main'  
 
                   // 이미지 태그 변경 후 메인 브랜치에 푸시
                   sh "git config --global user.email ${gitEmail}"
                   sh "git config --global user.name ${gitName}"
-                  sh "sed -i 's/test-jenkins:.*/test-jenkins:${currentBuild.number}/g' deploy/test-deploy.yml"
+                  sh "sed -i 's/sbimage:.*/sbimage:${currentBuild.number}/g' deploy/sb-deploy.yml"
                   // deploy폴더의 sd-deploy.yml 파일의 내용을 수정하는 부분.
                   sh "git add ."
                   sh "git commit -m 'fix:${dockerHubRegistry} ${currentBuild.number} image versioning'"
@@ -93,6 +94,7 @@ pipeline {
                   sh "git remote remove origin"
                   sh "git remote add origin git@github.com:jooh9992/sb_code.git"
                   sh "git push -u origin main"
+
           }
       post {
         failure {
